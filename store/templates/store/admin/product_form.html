@@ -1,0 +1,131 @@
+{% extends 'store/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Product{% else %}Add New Product{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                {% if form.instance.pk %}
+                    <i class="bi bi-pencil-square"></i> Edit Product
+                {% else %}
+                    <i class="bi bi-plus-circle"></i> Add New Product
+                {% endif %}
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" class="row g-3">
+                {% csrf_token %}
+
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.name.label }}</label>
+                    {{ form.name|default_if_none:'' }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Price -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.price.label }}</label>
+                    {{ form.price|default_if_none:'' }}
+                    {% for error in form.price.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Stock -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.stock.label }}</label>
+                    {{ form.stock|default_if_none:'' }}
+                    {% for error in form.stock.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Category -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.category.label }}</label>
+                    {{ form.category|default_if_none:'' }}
+                    {% for error in form.category.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Description -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">{{ form.description.label }}</label>
+                    {{ form.description|default_if_none:'' }}
+                    {% for error in form.description.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Image Upload & Preview -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">{{ form.image.label }}</label>
+                    {{ form.image }}
+                    <div id="preview" class="mt-2">
+                        {% if form.instance.pk and form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" class="img-thumbnail" style="max-width: 200px;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/200x200?text=No+Image" class="img-thumbnail" style="max-width: 200px;">
+                        {% endif %}
+                    </div>
+                    {% for error in form.image.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-save"></i> Save
+                    </button>
+                    <a href="{% url 'store:product_list' %}" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS for live image preview -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('id_image');
+    const preview = document.getElementById('preview');
+
+    imageInput.addEventListener('change', function(event) {
+        preview.innerHTML = '';
+        const file = event.target.files[0];
+        if (file) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'img-thumbnail';
+            img.style.maxWidth = '200px';
+            img.style.transition = 'transform 0.3s ease';
+            preview.appendChild(img);
+            // subtle animation
+            setTimeout(() => img.style.transform = 'scale(1.05)', 50);
+            setTimeout(() => img.style.transform = 'scale(1)', 300);
+        }
+    });
+});
+</script>
+
+<!-- Optional Custom CSS -->
+<style>
+input, select, textarea {
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+}
+</style>
+{% endblock %}

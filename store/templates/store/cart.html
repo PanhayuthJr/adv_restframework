@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold text-center">🛒 Your Cart</h2>
+
+    {% if cart_items %}
+    <form method="POST" action="{% url 'store:checkout_selected' %}">
+        {% csrf_token %}
+        <div class="card shadow-sm p-4 bg-white rounded">
+            <ul class="list-group list-group-flush">
+                {% for item in cart_items %}
+                <li class="list-group-item d-flex flex-column flex-md-row align-items-center justify-content-between py-3">
+
+                    <!-- Select Checkbox -->
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="checkbox" name="selected_items" value="{{ item.product.pk }}" id="select{{ item.product.pk }}">
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="d-flex align-items-center flex-grow-1 mb-3 mb-md-0">
+                        <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
+                             alt="{{ item.product.name }}"
+                             class="img-thumbnail me-3"
+                             style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
+                        <div>
+                            <h5 class="mb-1 fw-semibold">{{ item.product.name }}</h5>
+                            <p class="mb-0 text-muted">${{ item.product.price }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Quantity and Actions -->
+                    <div class="d-flex align-items-center">
+                        <!-- Update quantity -->
+                        <form method="POST" action="{% url 'store:update_cart' item.product.pk %}" class="d-flex align-items-center me-2">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="decrease" class="btn btn-outline-secondary btn-sm px-3">-</button>
+                            <input type="text" name="quantity" value="{{ item.quantity }}" class="form-control form-control-sm mx-1 text-center" style="width:50px;" readonly>
+                            <button type="submit" name="action" value="increase" class="btn btn-outline-secondary btn-sm px-3">+</button>
+                        </form>
+
+                        <!-- Remove -->
+                        <form method="POST" action="{% url 'store:remove_from_cart' item.product.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Total and Checkout -->
+            <div class="mt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <h5 class="mb-2 mb-md-0">Total: <strong>${{ total }}</strong></h5>
+                <div>
+                    <button type="submit" class="btn btn-success">Checkout Selected</button>
+                    <a href="{% url 'store:checkout' %}" class="btn btn-outline-primary ms-2">Checkout All</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert alert-info text-center mt-5">
+        Your cart is empty. <a href="{% url 'store:index' %}" class="text-decoration-underline">Start shopping!</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

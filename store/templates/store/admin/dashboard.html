@@ -1,0 +1,90 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary mb-3">
+            <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+        </h1>
+        <p class="text-muted">Overview of your store management system</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Products Card -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-lg border-0 rounded-4 p-4 text-center">
+                <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                    <i class="bi bi-box-seam display-5"></i>
+                </div>
+                <h5 class="fw-semibold mb-1">Total Products</h5>
+                <p class="display-6 fw-bold text-dark">{{ product_count }}</p>
+                <a href="{% url 'store:product_list' %}" class="btn btn-outline-primary rounded-pill px-4 mt-3">
+                    <i class="bi bi-gear me-1"></i>Manage Products
+                </a>
+            </div>
+        </div>
+
+        <!-- Categories Card -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-lg border-0 rounded-4 p-4 text-center">
+                <div class="icon-circle bg-success bg-opacity-10 text-success mb-3 mx-auto">
+                    <i class="bi bi-tags display-5"></i>
+                </div>
+                <h5 class="fw-semibold mb-1">Total Categories</h5>
+                <p class="display-6 fw-bold text-dark">{{ category_count }}</p>
+                <a href="{% url 'store:category_list' %}" class="btn btn-outline-success rounded-pill px-4 mt-3">
+                    <i class="bi bi-folder2-open me-1"></i>Manage Categories
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add style and animation -->
+<style>
+    .dashboard-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-circle {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dashboard-card {
+        opacity: 0;
+        animation: fadeInUp 0.8s forwards;
+    }
+
+    .dashboard-card:nth-child(1) {
+        animation-delay: 0.2s;
+    }
+
+    .dashboard-card:nth-child(2) {
+        animation-delay: 0.4s;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'store/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Category{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h2 class="fw-bold text-primary mb-0">
+                        {% if form.instance.pk %}
+                            <i class="bi bi-pencil-square me-2"></i>Edit Category
+                        {% else %}
+                            <i class="bi bi-plus-circle me-2"></i>Add New Category
+                        {% endif %}
+                    </h2>
+                    <a href="{% url 'store:category_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Back
+                    </a>
+                </div>
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Category Name -->
+                    <div class="mb-4">
+                        <label for="id_name" class="form-label fw-semibold">Category Name</label>
+                        <input type="text" name="name" id="id_name"
+                               class="form-control form-control-lg"
+                               placeholder="Enter category name"
+                               value="{{ form.name.value|default_if_none:'' }}">
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label for="id_description" class="form-label fw-semibold">Description</label>
+                        <textarea name="description" id="id_description"
+                                  class="form-control form-control-lg"
+                                  rows="5" placeholder="Write a short description...">{{ form.description.value|default_if_none:'' }}</textarea>
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+                            <i class="bi bi-save me-1"></i> Save Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional entry animation -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const card = document.querySelector('.card');
+        card.style.opacity = 0;
+        card.style.transform = "translateY(25px)";
+        setTimeout(() => {
+            card.style.transition = "all 0.6s ease";
+            card.style.opacity = 1;
+            card.style.transform = "translateY(0)";
+        }, 100);
+    });
+</script>
+{% endblock %}
