@@ -17,7 +17,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 #DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = ['https://squid-app-hnhb6.ondigitalocean.app/']
+ALLOWED_HOSTS = ['*']
 
 # ==========================
 #  INSTALLED APPS
