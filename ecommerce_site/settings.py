@@ -81,26 +81,32 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if not DATABASE_URL:
-    print("WARNING: DATABASE_URL environment variable is not set. Defaulting to SQLite for local development.")
+    print("WARNING: DATABASE_URL environment variable is not set or empty. Defaulting to SQLite for local development.")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    # Robust check for Railway environment
+    is_railway = any(key.startswith('RAILWAY_') for key in os.environ)
 
-# Robust check for Railway environment
-is_railway = any(key.startswith('RAILWAY_') for key in os.environ)
+    if is_railway and ('localhost' in DATABASE_URL or '127.0.0.1' in DATABASE_URL):
+        raise RuntimeError(
+            "CRITICAL ERROR: DATABASE_URL is set to localhost in a Railway environment.\n"
+            "The application is trying to connect to a database inside this container, which does not exist.\n"
+            "Please update the DATABASE_URL variable in your Railway project settings to point to your PostgreSQL service.\n"
+            "It should look like: postgres://user:password@containers-us-west-111.railway.app:5432/railway"
+        )
 
-if is_railway and DATABASE_URL and ('localhost' in DATABASE_URL or '127.0.0.1' in DATABASE_URL):
-    raise RuntimeError(
-        "CRITICAL ERROR: DATABASE_URL is set to localhost in a Railway environment.\n"
-        "The application is trying to connect to a database inside this container, which does not exist.\n"
-        "Please update the DATABASE_URL variable in your Railway project settings to point to your PostgreSQL service.\n"
-        "It should look like: postgres://user:password@containers-us-west-111.railway.app:5432/railway"
-    )
-
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
-        conn_max_age=600,
-        ssl_require=False
-    )
-}
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False
+        )
+    }
 
 
 # Hardcode these for stability until connection is fixed
