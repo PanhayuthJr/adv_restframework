@@ -14,12 +14,6 @@ from decouple import config
 # ==========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-6kw3%ir=)%zxl8e8f#sqa!5b=5ao=oebm@&l)t@185$4so5rp7')
-
-# Temporarily hardcoded for debugging the 400 error
-DEBUG = True
-ALLOWED_HOSTS = ['*']
-
 # Security headers for Railway/Proxies
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -83,19 +77,37 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 #     }
 # }
 
-# Database configuration - Fixed for Railway
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='postgres://postgres:123@localhost:5432/ecommerce_site'),
-        conn_max_age=600,
-        ssl_require=False
-    )
-}
+# Database configuration - Railway Standard
+import dj_database_url
+import os
 
-# Print for Railway logs to verify URL is being picked up (will hide password)
-db_url = config('DATABASE_URL', default='')
-if db_url:
-    print(f"DEBUG: Database host target: {db_url.split('@')[-1] if '@' in db_url else 'Unknown'}")
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False  # Set to True if using a production DB with SSL
+        )
+    }
+else:
+    # Fallback for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'ecommerce_site',
+            'USER': 'postgres',
+            'PASSWORD': '123',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
+
+# Hardcode these for stability until connection is fixed
+DEBUG = True
+ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-6kw3%ir=)%zxl8e8f#sqa!5b=5ao=oebm@&l)t@185$4so5rp7')
 
 
 
