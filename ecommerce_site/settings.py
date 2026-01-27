@@ -85,9 +85,13 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='postgres://postgres:123@localhost:5432/ecommerce_site')
+        default=os.environ.get('DATABASE_URL', 'postgres://postgres:123@localhost:5432/ecommerce_site'),
+        conn_max_age=600,
+        ssl_require=True if os.environ.get('DATABASE_URL') else False
     )
 }
+
+
 
 
 
