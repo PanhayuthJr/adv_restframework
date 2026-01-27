@@ -95,7 +95,9 @@ if DATABASE_URL:
         )
     }
 else:
-    # If no environment variable, fallback to local (only for development)
+    # If no environment variable, this will now error out clearly in logs
+    # rather than defaulting to localhost which always fails on Railway
+    print("CRITICAL: DATABASE_URL is not set!")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
