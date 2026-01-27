@@ -11,11 +11,11 @@ from django.contrib.messages import constants as messages
 # ==========================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-#SECRET_KEY = 'django-insecure-6kw3%ir=)%zxl8e8f#sqa!5b=5ao=oebm@&l)t@185$4so5rp7'
+#SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'django-insecure-6kw3%ir=)%zxl8e8f#sqa!5b=5ao=oebm@&l)t@185$4so5rp7'
 
-#DEBUG = True
-DEBUG = False
+DEBUG = True
+#DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -32,6 +32,8 @@ INSTALLED_APPS = [
 
     # Third-party
     'widget_tweaks',
+    'rest_framework',
+    'corsheaders',
 
     # Local apps
     'store',
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -66,7 +69,7 @@ DATABASES = {
         'NAME': 'ecommerce_site',
         'USER': 'postgres',
         'PASSWORD': '123',
-        'HOST': 'localhost',
+        # 'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -151,7 +154,21 @@ TEMPLATES = [
 
                 # ✅ Persistent cart/wishlist counts
                 'store.context_processors.cart_and_wishlist_counts',
+                'store.context_processors.categories',
             ],
         },
     },
 ]
+
+# ==========================
+#  REST FRAMEWORK / CORS
+# ==========================
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+CORS_ALLOW_ALL_ORIGINS = True # Change this for production

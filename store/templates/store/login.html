@@ -1,87 +1,71 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block content %}
-<div class="d-flex justify-content-center align-items-center bg-light" style="min-height: 100vh;">
-  <div class="card shadow-lg p-4 border-0" style="width: 400px; border-radius: 20px; animation: fadeIn 0.8s ease;">
+{% block title %}Elite Sign In{% endblock %}
 
-    <div class="text-center mb-4">
-      <img src="{% static 'images/login-icon.png' %}" alt="Login Icon" width="80" class="mb-2">
-      <h3 class="fw-bold">Welcome Back 👋</h3>
-      <p class="text-muted small">Log in to continue shopping</p>
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center p-4">
+  <div
+    class="w-full max-w-md bg-white border border-slate-200 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden fade-in">
+    <!-- Decoration -->
+    <div class="absolute -top-12 -right-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-accent/10 rounded-full blur-3xl"></div>
+
+    <div class="text-center mb-10 relative">
+      <div
+        class="inline-flex w-20 h-20 bg-slate-900 rounded-3xl items-center justify-center text-white mb-6 shadow-xl shadow-slate-900/20">
+        <i class="fas fa-lock-open text-2xl"></i>
+      </div>
+      <h2 class="text-4xl font-black text-slate-900 leading-tight">Welcome <br>Back</h2>
+      <p class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-4">Authorized Personnel Only</p>
     </div>
 
-    <!-- 🔹 Show message if redirected from add-to-cart -->
     {% if request.GET.next %}
-      <div class="alert alert-warning py-2">
-        Please log in to continue.
-      </div>
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-8 flex items-center gap-3">
+      <i class="fas fa-shield-halved text-indigo-500"></i>
+      <p class="text-xs font-bold text-indigo-700">Access Restricted. Please identify yourself.</p>
+    </div>
     {% endif %}
 
-    <!-- 🔹 Display Django messages (like invalid login) -->
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} py-2 mb-2">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
-    <form method="POST" autocomplete="off">
+    <form method="POST" class="space-y-6 relative">
       {% csrf_token %}
-      <div class="mb-3">
-        <label for="username" class="form-label fw-semibold">Username</label>
-        <input
-          type="text"
-          name="username"
-          id="username"
-          class="form-control form-control-lg"
-          placeholder="Enter your username"
-          required
-          autocomplete="new-username"
-        >
+      <div class="space-y-4">
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Operator
+            Alias</label>
+          <div class="relative">
+            <input type="text" name="username" placeholder="Username" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+            <i class="fas fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          </div>
+        </div>
+
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Access
+            Key</label>
+          <div class="relative">
+            <input type="password" name="password" placeholder="Password" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+            <i class="fas fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          </div>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <label for="password" class="form-label fw-semibold">Password</label>
-        <input
-          type="password"
-          name="password"
-          id="password"
-          class="form-control form-control-lg"
-          placeholder="Enter your password"
-          required
-          autocomplete="new-password"
-        >
-      </div>
-
-      <button type="submit" class="btn btn-dark w-100 btn-lg rounded-pill mt-2">
-        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+      <button type="submit"
+        class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-2xl shadow-slate-900/30 hover:bg-accent transition-all active:scale-95 flex items-center justify-center gap-3">
+        Establish Connection
+        <i class="fas fa-bolt-lightning text-xs"></i>
       </button>
     </form>
 
-    <div class="text-center mt-3">
-      <a href="#" class="text-muted small text-decoration-none">Forgot password?</a>
+    <div class="text-center mt-10">
+      <p class="text-slate-400 font-bold text-xs uppercase tracking-tighter">
+        No Identity Detected?
+        <a href="{% url 'store:register' %}"
+          class="text-accent underline underline-offset-4 ml-1 hover:text-slate-900 transition-colors">Start
+          Enrollment</a>
+      </p>
     </div>
-
-    <hr class="my-3">
-
-    <p class="text-center mb-0 text-muted">
-      Don’t have an account?
-      <a href="{% url 'store:register' %}" class="fw-semibold text-decoration-none">Sign up</a>
-    </p>
   </div>
 </div>
-
-<style>
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
-</style>
 {% endblock %}

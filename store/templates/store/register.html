@@ -1,33 +1,79 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
+{% block title %}Elite Enrollment{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="height:80vh;">
-  <div class="card shadow-lg p-4" style="width: 400px; border-radius: 15px;">
-    <h3 class="text-center mb-3 fw-bold">Create Account ✨</h3>
-    <form method="POST">
+<div class="min-h-[70vh] flex items-center justify-center p-4">
+  <div
+    class="w-full max-w-md bg-white border border-slate-200 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden fade-in">
+    <!-- Decoration -->
+    <div class="absolute -top-12 -left-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/10 rounded-full blur-3xl"></div>
+
+    <div class="text-center mb-10 relative">
+      <div
+        class="inline-flex w-20 h-20 bg-slate-100 rounded-3xl items-center justify-center text-accent mb-6 shadow-sm border border-slate-200">
+        <i class="fas fa-user-plus text-2xl"></i>
+      </div>
+      <h2 class="text-4xl font-black text-slate-900 leading-tight">Join <br>Inazuma</h2>
+      <p class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-4">Initialize Operator Account</p>
+    </div>
+
+    <form method="POST" class="space-y-5 relative">
       {% csrf_token %}
-      <div class="mb-3">
-        <label for="username" class="form-label fw-semibold">Username</label>
-        <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Choose a username" required>
+      <div class="space-y-4">
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Operator
+            Alias</label>
+          <div class="relative">
+            <input type="text" name="username" placeholder="Choose username" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+            <i class="fas fa-fingerprint absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          </div>
+        </div>
+
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Communication
+            Grid</label>
+          <div class="relative">
+            <input type="email" name="email" placeholder="Email address" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+            <i class="fas fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="relative">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Access
+              Key</label>
+            <input type="password" name="password1" placeholder="••••" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+          </div>
+          <div class="relative">
+            <label
+              class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Confirm</label>
+            <input type="password" name="password2" placeholder="••••" required
+              class="w-full bg-slate-50 border-none rounded-2xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-accent outline-none transition-all">
+          </div>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for="email" class="form-label fw-semibold">Email</label>
-        <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="Enter your email" required>
-      </div>
-      <div class="mb-3">
-        <label for="password1" class="form-label fw-semibold">Password</label>
-        <input type="password" name="password1" id="password1" class="form-control form-control-lg" placeholder="Enter password" required>
-      </div>
-      <div class="mb-3">
-        <label for="password2" class="form-label fw-semibold">Confirm Password</label>
-        <input type="password" name="password2" id="password2" class="form-control form-control-lg" placeholder="Confirm password" required>
-      </div>
-      <button type="submit" class="btn btn-dark w-100 btn-lg rounded-pill">Register</button>
+
+      <button type="submit"
+        class="w-full bg-accent text-white py-5 rounded-2xl font-black shadow-2xl shadow-accent/30 hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-3">
+        Complete Enrollment
+        <i class="fas fa-rocket text-xs"></i>
+      </button>
     </form>
-    <p class="text-center mt-3 mb-0 text-muted">
-      Already have an account? <a href="{% url 'store:login' %}" class="text-decoration-none fw-semibold">Login</a>
-    </p>
+
+    <div class="text-center mt-10">
+      <p class="text-slate-400 font-bold text-xs uppercase tracking-tighter">
+        Already recognized?
+        <a href="{% url 'store:login' %}"
+          class="text-accent underline underline-offset-4 ml-1 hover:text-slate-900 transition-colors">SignIn Existing
+          Alias</a>
+      </p>
+    </div>
   </div>
 </div>
 {% endblock %}

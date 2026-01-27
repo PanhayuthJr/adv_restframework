@@ -1,115 +1,152 @@
 {% extends 'store/admin/base_admin.html' %}
 {% load static %}
-{% block title %}Products{% endblock %}
+
+{% block header_title %}Arsenal Repository{% endblock %}
+{% block header_subtitle %}Manage and deploy product units within the master grid.{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'store:product_create' %}"
+    class="admin-btn bg-slate-900 text-white hover:bg-accent border-none shadow-xl shadow-slate-900/20">
+    <i class="fas fa-plus-circle mr-3"></i> Deploy New Unit
+</a>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-normal">Products</h2>
-        <a href="{% url 'store:product_create' %}" class="btn btn-primary btn-lg shadow-sm">+ Add New Product</a>
+<div class="bg-white border border-slate-100 rounded-[3rem] p-12 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <h3 class="text-xl font-black tracking-tighter text-slate-900 flex items-center gap-3">
+            <i class="fas fa-database text-accent"></i>
+            Detected Units
+        </h3>
+        <!-- Simple Filter Placeholder -->
+        <div class="flex gap-2">
+            <input type="text" placeholder="Search arsenal..."
+                class="bg-slate-50 border-none rounded-xl px-6 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-accent/20 w-64 transition-all">
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in page_obj %}
-                    <tr>
-                        <td>{{ product.id }}</td>
-                        <td>
-                            {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail"
-                                     style="width: 60px; height: 60px; object-fit: cover;">
-                            {% else %}
-                                <span class="text-muted">No Image</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.category.name }}</td>
-                        <td>${{ product.price }}</td>
-                        <td>{{ product.stock }}</td>
-                        <td class="d-flex gap-1">
-                            <a href="{% url 'store:product_update' pk=product.id %}" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                            <form method="POST" action="{% url 'store:product_delete' pk=product.id %}"
-                                  onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                            No products found.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-        <div class="d-flex justify-content-center mt-4 mb-3">
-            <nav>
-                <ul class="pagination pagination-lg mb-0">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    {% endif %}
-
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+    <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-[10px] font-black text-slate-300 uppercase tracking-widest border-b border-slate-50">
+                    <th class="pb-6 w-[35%]">Product Module</th>
+                    <th class="pb-6">Series</th>
+                    <th class="pb-6 text-right">Acquisition Key</th>
+                    <th class="pb-6 text-center">Status</th>
+                    <th class="pb-6 text-right w-40">Command</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for product in page_obj %}
+                <tr class="group hover:bg-slate-50/50 transition-colors">
+                    <td class="py-6">
+                        <div class="flex items-center gap-6">
+                            <div
+                                class="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shrink-0">
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}"
+                                    class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                    alt="{{ product.name }}">
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-slate-200">
+                                    <i class="fas fa-image text-xl"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-black text-slate-900 truncate">{{ product.name }}</p>
+                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">UID: {{
+                                    product.id|stringformat:"04d" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-6">
+                        <span
+                            class="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                            {{ product.category.name }}
+                        </span>
+                    </td>
+                    <td class="py-6 text-right">
+                        <p class="text-sm font-black text-slate-900">${{ product.price|floatformat:2 }}</p>
+                    </td>
+                    <td class="py-6 text-center">
+                        {% if product.stock > 0 %}
+                        <span class="inline-flex items-center gap-2 text-emerald-500 font-black text-[10px] uppercase">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            {{ product.stock }} Active
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-2 text-red-400 font-black text-[10px] uppercase">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                            Depleted
+                        </span>
                         {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled"><span class="page-link">Next</span></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-        {% endif %}
+                    </td>
+                    <td class="py-6 text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="{% url 'store:product_update' product.id %}"
+                                class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:bg-accent hover:text-white transition-all shadow-sm">
+                                <i class="fas fa-sliders-h text-xs"></i>
+                            </a>
+                            <button data-url="{% url 'store:product_delete' product.id %}"
+                                data-name="{{ product.name|escapejs }}" onclick="confirmDelete(this)"
+                                class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-32 text-center text-slate-300">
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-box-open text-5xl mb-6 opacity-20"></i>
+                            <p class="font-black uppercase tracking-[.3em] text-xs">Repository Empty</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex justify-center mt-12">
+        <nav class="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <a href="?page={{ num }}"
+                class="w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs transition-all {% if page_obj.number == num %}bg-slate-900 text-white shadow-lg{% else %}bg-white text-slate-400 hover:text-slate-900 shadow-sm{% endif %}">
+                {{ num }}
+            </a>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
 </div>
 
-<style>
-.pagination .page-link {
-    margin: 0 3px;
-    transition: all 0.2s ease-in-out;
-}
-.pagination .page-item.active .page-link {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-    color: white;
-}
-.pagination .page-link:hover {
-    transform: scale(1.05);
-}
-</style>
+<!-- Simple Delete Script -->
+<script>
+    function confirmDelete(btn) {
+        const url = btn.getAttribute('data-url');
+        const name = btn.getAttribute('data-name');
+        if (confirm(`INITIATE DELETION SEQUENCE: Are you sure you want to terminate product unit "${name}"? This action is irreversible.`)) {
+            window.location.href = url;
+        }
+    }
+</script>
 {% endblock %}

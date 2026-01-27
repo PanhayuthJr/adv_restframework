@@ -1,99 +1,185 @@
-/* ===== Admin Form Styling ===== */
+/* =========================================
+   Ultimate Quality Design System (Shopify/Stripe Style)
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #0F172A;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --border: #E2E8F0;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --radius: 12px;
+}
+
 body {
-    font-family: 'Helvetica', sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
 }
 
-.card {
-    border-radius: 12px !important;
-    padding: 2rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-    background-color: #fff !important;
+/* Fix Typography */
+h1,
+h2,
+h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
-.card input.form-control,
-.card select.form-select,
-.card textarea.form-control {
-    font-size: 1.05rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #ced4da;
+/* Professional Navbar */
+.navbar {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 0;
 }
 
-.card label {
-    font-size: 1.1rem;
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--primary) !important;
+}
+
+/* Redesigned Form Controls (No more cut text) */
+.form-group-custom {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-custom {
+    display: block;
     font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
 }
 
-.btn-lg {
-    font-size: 1.15rem;
-    padding: 0.85rem 2rem;
-    border-radius: 0.6rem;
+.form-control,
+.form-select {
+    height: 52px !important;
+    /* Fixed height to prevent cutting */
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 0 1rem;
+    font-size: 1rem;
+    background-color: var(--surface);
+    transition: all 0.2s;
+    color: var(--text-main);
 }
 
-#id_image_upload + label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 250px;
-    border: 2px dashed #ced4da;
-    border-radius: 12px;
-    background-color: #f1f3f5;
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+/* Input Placeholder */
+::placeholder {
+    color: #94A3B8;
+    opacity: 1;
+}
+
+/* Checkbox & Radio */
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.2rem;
     cursor: pointer;
-    transition: background 0.3s, border-color 0.3s;
 }
 
-#id_image_upload + label:hover {
-    background-color: #e9ecef;
-    border-color: #0d6efd;
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
 }
 
-#image_preview {
-    max-height: 200px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+/* Premium Cards */
+.card-premium {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-h2.display-6 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #0d6efd;
+.product-card {
+    border-radius: 20px !important;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 992px) {
-    .card {
-        padding: 1.5rem;
-    }
-
-    #id_image_upload + label {
-        height: 200px;
-    }
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
 }
-.product-card .btn-outline-warning {
-    font-size: 1.2rem;
-    line-height: 1;
-    width: 35px;
-    height: 35px;
-    display: flex;
+
+/* Button System */
+.btn {
+    height: 52px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 0 2rem;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s;
 }
 
-.product-card .btn-outline-warning:hover {
-    background-color: #ffc107;
-    color: #fff;
+.btn-primary {
+    background-color: var(--accent);
+    border: none;
 }
-.list-group-item.active {
-    background-color: #0d6efd;
-    color: white;
-    font-weight: 500;
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.01);
 }
-.list-group-item a {
-    text-decoration: none;
-    color: inherit;
+
+/* Cart Items */
+.cart-item-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
 }
-.list-group-item a:hover {
-    text-decoration: none;
-    color: #0d6efd;
+
+/* Sticky Summary */
+.summary-container {
+    position: sticky;
+    top: 100px;
+}
+
+/* Animation */
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Specific Fix for badges */
+.badge {
+    padding: 0.6em 1em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Remove Floating Label Overrides */
+.form-floating {
+    margin-bottom: 1.5rem;
 }

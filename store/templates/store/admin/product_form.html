@@ -1,131 +1,130 @@
 {% extends 'store/admin/base_admin.html' %}
 {% load static %}
 
-{% block title %}
-    {% if form.instance.pk %}Edit Product{% else %}Add New Product{% endif %}
-{% endblock %}
+{% block header_title %}{% if product %}Reconfiguring Unit{% else %}Initialize New Unit{% endif %}{% endblock %}
+{% block header_subtitle %}{% if product %}Updating specifications for existing arsenal module.{% else %}Defining a new
+unit for deployment in the master grid.{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">
-                {% if form.instance.pk %}
-                    <i class="bi bi-pencil-square"></i> Edit Product
-                {% else %}
-                    <i class="bi bi-plus-circle"></i> Add New Product
-                {% endif %}
-            </h4>
+<div class="max-w-4xl">
+    <form method="POST" enctype="multipart/form-data"
+        class="bg-white border border-slate-100 rounded-[3rem] p-12 shadow-sm space-y-10">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-3xl mb-8">
+            <p class="text-sm font-black text-red-600 uppercase tracking-widest mb-2">Configuration Error Detected</p>
+            <ul class="list-disc list-inside text-xs font-bold text-red-500 space-y-1">
+                {% for field, errors in form.errors.items %}
+                <li>{{ field|title }}: {{ errors|striptags }}</li>
+                {% endfor %}
+            </ul>
         </div>
+        {% endif %}
 
-        <div class="card-body">
-            <form method="POST" enctype="multipart/form-data" class="row g-3">
-                {% csrf_token %}
-
-                <!-- Name -->
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">{{ form.name.label }}</label>
-                    {{ form.name|default_if_none:'' }}
-                    {% for error in form.name.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- Left: Primary Info -->
+            <div class="space-y-8">
+                <div>
+                    <label
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Module
+                        Designation</label>
+                    {{ form.name }}
                 </div>
 
-                <!-- Price -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">{{ form.price.label }}</label>
-                    {{ form.price|default_if_none:'' }}
-                    {% for error in form.price.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
+                <div>
+                    <label
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Category
+                        Series</label>
+                    {{ form.category }}
                 </div>
 
-                <!-- Stock -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">{{ form.stock.label }}</label>
-                    {{ form.stock|default_if_none:'' }}
-                    {% for error in form.stock.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <!-- Category -->
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">{{ form.category.label }}</label>
-                    {{ form.category|default_if_none:'' }}
-                    {% for error in form.category.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <!-- Description -->
-                <div class="col-12">
-                    <label class="form-label fw-semibold">{{ form.description.label }}</label>
-                    {{ form.description|default_if_none:'' }}
-                    {% for error in form.description.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <!-- Image Upload & Preview -->
-                <div class="col-12">
-                    <label class="form-label fw-semibold">{{ form.image.label }}</label>
-                    {{ form.image }}
-                    <div id="preview" class="mt-2">
-                        {% if form.instance.pk and form.instance.image %}
-                            <img src="{{ form.instance.image.url }}" class="img-thumbnail" style="max-width: 200px;">
-                        {% else %}
-                            <img src="https://via.placeholder.com/200x200?text=No+Image" class="img-thumbnail" style="max-width: 200px;">
-                        {% endif %}
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label
+                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Acquisition
+                            Cost</label>
+                        {{ form.price }}
                     </div>
-                    {% for error in form.image.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
+                    <div>
+                        <label
+                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Availability
+                            (QTY)</label>
+                        {{ form.stock }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Manifest & Image -->
+            <div class="space-y-8">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Unit
+                        Image Uplink</label>
+                    <div class="relative group">
+                        <div
+                            class="w-full h-48 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 transition-all group-hover:border-accent/40 group-hover:bg-slate-100/50 overflow-hidden relative">
+                            {% if product.image %}
+                            <img id="preview" src="{{ product.image.url }}"
+                                class="absolute inset-0 w-full h-full object-cover">
+                            {% else %}
+                            <div id="preview-placeholder" class="flex flex-col items-center">
+                                <i
+                                    class="fas fa-cloud-upload-alt text-3xl mb-4 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Upload Static Data</span>
+                            </div>
+                            {% endif %}
+                            {{ form.image }}
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Buttons -->
-                <div class="col-12 mt-4">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="bi bi-save"></i> Save
-                    </button>
-                    <a href="{% url 'store:product_list' %}" class="btn btn-secondary ms-2">
-                        <i class="bi bi-arrow-left"></i> Cancel
-                    </a>
+                <div>
+                    <label
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Technical
+                        Manifest</label>
+                    {{ form.description }}
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <div class="pt-10 border-t border-slate-50 flex items-center justify-between">
+            <a href="{% url 'store:product_list' %}"
+                class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors flex items-center gap-3">
+                <i class="fas fa-chevron-left text-[10px]"></i>
+                Back to Arsenal
+            </a>
+            <button type="submit"
+                class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-all active:scale-95 shadow-2xl shadow-slate-900/20">
+                {% if product %}Commit Changes{% else %}Initiate Deployment{% endif %}
+            </button>
+        </div>
+    </form>
 </div>
 
-<!-- JS for live image preview -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const imageInput = document.getElementById('id_image');
-    const preview = document.getElementById('preview');
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                let prev = document.getElementById('preview');
+                if (!prev) {
+                    prev = document.createElement('img');
+                    prev.id = 'preview';
+                    prev.className = 'absolute inset-0 w-full h-full object-cover';
+                    input.parentElement.appendChild(prev);
 
-    imageInput.addEventListener('change', function(event) {
-        preview.innerHTML = '';
-        const file = event.target.files[0];
-        if (file) {
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.className = 'img-thumbnail';
-            img.style.maxWidth = '200px';
-            img.style.transition = 'transform 0.3s ease';
-            preview.appendChild(img);
-            // subtle animation
-            setTimeout(() => img.style.transform = 'scale(1.05)', 50);
-            setTimeout(() => img.style.transform = 'scale(1)', 300);
+                    const placeholder = document.getElementById('preview-placeholder');
+                    if (placeholder) placeholder.style.display = 'none';
+                }
+                prev.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
         }
-    });
-});
-</script>
+    }
 
-<!-- Optional Custom CSS -->
-<style>
-input, select, textarea {
-    border-radius: 0.35rem;
-    padding: 0.5rem;
-}
-</style>
+    // Attach listener to the Django-rendered file input
+    document.querySelector('input[type="file"]').addEventListener('change', function () {
+        previewImage(this);
+    });
+</script>
 {% endblock %}

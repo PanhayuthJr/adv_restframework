@@ -1,197 +1,248 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Shop | {% block title %}{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        body { font-family: 'Helvetica', sans-serif; background-color: #f8f9fa; }
-        .navbar { box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-height: 60px; }
-        .navbar-brand { font-weight: 700; letter-spacing: 0.5px; }
-        .nav-link, .btn { font-size: 0.9rem; }
-        .nav-link:hover { color: #0d6efd !important; }
-        .content-container { min-height: calc(100vh - 160px); }
+    <title>INAZUMA | {% block title %}Elite Shop{% endblock %}</title>
 
-        /* Admin Sidebar */
-        .sidebar {
-            background: #1e272e;
-            transition: all 0.3s ease-in-out;
-        }
-        .sidebar h5 { border-bottom: 1px solid #fff; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
-        .sidebar a {
-            text-decoration: none;
-            display: block;
-            padding: 6px 10px;
-            color: #dcdde1;
-            border-radius: 4px;
-            margin-bottom: 4px;
-            transition: all 0.2s;
-        }
-        .sidebar a:hover {
-            background-color: #0d6efd;
-            color: #fff;
-            text-decoration: none;
-            transform: translateX(3px);
-        }
-        .sidebar .btn {
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .sidebar .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .logout-link {
-            background-color: #e84118;
-            color: #fff;
-        }
-        .sidebar .logout-link:hover {
-            background-color: #c23616;
-            transform: translateX(3px);
+    <!-- Tailwind CSS v4 (Latest) -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --color-primary: #0F172A;
+            --color-accent: #2563EB;
+            --color-bg: #F8FAFC;
         }
 
-        /* Navbar Cart & Wishlist */
-        .nav-cart, .nav-wishlist { display: flex; align-items: center; gap: 4px; }
-        .nav-cart span, .nav-wishlist span { font-weight: 500; }
+        @layer base {
+            body { @apply bg-bg text-primary font-sans antialiased selection:bg-accent selection:text-white; }
+            h1, h2, h3 { @apply tracking-tight font-extrabold; }
+        }
+
+        @layer components {
+            .nav-link { @apply flex items-center px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-accent rounded-xl; }
+            .btn-base { @apply inline-flex items-center justify-center px-6 py-3 text-sm font-bold rounded-xl transition-all active:scale-[0.98]; }
+            .input-base { @apply w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 text-sm transition-all focus:border-accent focus:ring-4 focus:ring-accent/10 outline-none; }
+            .glass-card { @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl; }
+            .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+        }
+
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg bg-white sticky-top">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand text-primary" href="{% url 'store:index' %}">INAZUMA</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<body class="overflow-x-hidden">
 
-        <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
+    <!-- Global Glass Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-100 py-3">
+        <div class="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12">
+            <div class="flex justify-between items-center">
+                <!-- Brand -->
+                <a href="{% url 'store:index' %}" class="group flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white transition-transform group-hover:rotate-12">
+                        <i class="fas fa-bolt text-lg"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-tighter text-slate-900">INAZUMA<span
+                            class="text-accent">.</span></span>
+                </a>
 
-            <!-- Search Box with Category -->
-            <form class="d-flex mx-auto" method="GET" action="{% url 'store:index' %}">
-                <select class="form-select me-2" name="category">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-                <input class="form-control me-2" type="search" placeholder="Search products..." name="q" value="{{ query|default:'' }}">
-                <button class="btn btn-outline-primary" type="submit">Search</button>
-            </form>
+                <!-- Minimalist Search -->
+                <div class="hidden md:flex flex-1 max-w-sm mx-12">
+                    <form action="{% url 'store:index' %}" method="GET" class="relative w-full">
+                        <input type="search" name="q" value="{{ query|default:'' }}" placeholder="Discover items..."
+                            class="w-full bg-slate-50 border-none rounded-2xl py-3 pl-12 pr-4 text-xs font-bold focus:ring-2 focus:ring-accent/20 transition-all outline-none text-slate-600">
+                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+                    </form>
+                </div>
 
-            <!-- Right-side links -->
-            <ul class="navbar-nav align-items-center">
-                {% if user.is_authenticated %}
-                    <li class="nav-item me-3">
-                        <span class="text-secondary small">👋 Hello, <strong>{{ user.username }}</strong></span>
-                    </li>
-                    <li class="nav-item me-2">
-                        <a class="nav-link nav-cart text-dark" href="{% url 'store:cart' %}">🛒 Cart (<span>{{ cart_item_count }}</span>)</a>
-                    </li>
-                    <li class="nav-item me-3">
-                        <a class="nav-link nav-wishlist text-dark" href="{% url 'store:wishlist' %}">⭐ Wishlist (<span>{{ wishlist_item_count }}</span>)</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'store:logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item me-2">
-                        <a class="nav-link nav-cart text-dark" href="{% url 'store:cart' %}">🛒 Cart (0)</a>
-                    </li>
-                    <li class="nav-item me-3">
-                        <a class="nav-link nav-wishlist text-dark" href="{% url 'store:wishlist' %}">⭐ Wishlist (0)</a>
-                    </li>
-                    <li class="nav-item me-2">
-                        <a href="{% url 'store:login' %}" class="btn btn-outline-primary btn-sm px-3">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'store:register' %}" class="btn btn-primary btn-sm px-3">Register</a>
-                    </li>
-                {% endif %}
-            </ul>
+                <!-- Account & Bag -->
+                <div class="flex items-center gap-3">
+                    {% if user.is_authenticated %}
+
+                    <!-- Separate Favorites Icon for easier access -->
+                    <a href="{% url 'store:wishlist' %}"
+                        class="relative w-11 h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all group">
+                        <i class="fas fa-heart text-lg group-hover:text-red-500 transition-colors"></i>
+                        {% if wishlist_item_count > 0 %}
+                        <span
+                            class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white">
+                            {{ wishlist_item_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Admin/Control Center (Staff Only) -->
+                    {% if user.is_staff %}
+                    <a href="{% url 'store:admin_dashboard' %}"
+                        class="w-11 h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white transition-all border border-slate-100 group shadow-sm"
+                        title="Control Center">
+                        <i class="fas fa-shield-halved text-lg group-hover:animate-pulse"></i>
+                    </a>
+                    {% endif %}
+
+                    <!-- Logout Icon -->
+                    <form method="POST" action="{% url 'store:logout' %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="w-11 h-11 bg-slate-50 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all border border-slate-100 group"
+                            title="Terminate Session">
+                            <i class="fas fa-power-off text-lg"></i>
+                        </button>
+                    </form>
+
+                    <a href="{% url 'store:cart' %}"
+                        class="relative w-11 h-11 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all group">
+                        <i class="fas fa-bag-shopping text-lg"></i>
+                        {% if cart_item_count > 0 %}
+                        <span
+                            class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-accent text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                            {{ cart_item_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    {% else %}
+                    <a href="{% url 'store:login' %}"
+                        class="px-6 py-3 text-xs font-black text-slate-900 hover:text-accent transition-colors">Log
+                        In</a>
+                    <a href="{% url 'store:register' %}"
+                        class="bg-accent text-white px-7 py-3 text-xs font-black rounded-xl shadow-xl shadow-accent/20 hover:shadow-accent/40 transition-all hover:-translate-y-1 active:scale-95">Connect</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Alerts -->
+    {% if messages %}
+    <div class="fixed top-24 left-1/2 -translate-x-1/2 z-[60] w-full max-w-lg px-4 space-y-3 pointer-events-none">
+        {% for message in messages %}
+        <div
+            class="pointer-events-auto glass-card border-none rounded-2xl p-4 flex items-center gap-4 fade-in shadow-2xl overflow-hidden relative">
+            <div
+                class="absolute inset-y-0 left-0 w-1.5 {% if message.tags == 'success' %}bg-emerald-500{% else %}bg-amber-500{% endif %}">
+            </div>
+            <div
+                class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {% if message.tags == 'success' %}bg-emerald-100 text-emerald-600{% else %}bg-amber-100 text-amber-600{% endif %}">
+                <i
+                    class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %}"></i>
+            </div>
+            <p class="text-xs font-black text-slate-700">{{ message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Core Layout -->
+    <div class="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 py-10">
+        <div class="flex flex-col lg:flex-row gap-16">
+
+            <!-- Left Filtering Sidebar -->
+            {% if 'index' in request.path or 'product' in request.path or request.path == '/' %}
+            <aside class="w-full lg:w-72 space-y-12 animate-fade-in shrink-0">
+                <!-- Taxonomy -->
+                <div class="space-y-6">
+                    <h4 class="text-[10px] font-black tracking-[0.3em] text-slate-300 uppercase pl-1">Inventory Modules
+                    </h4>
+                    <div class="grid grid-cols-1 gap-1.5">
+                        <a href="{% url 'store:index' %}"
+                            class="flex items-center justify-between px-5 py-4 rounded-2xl transition-all {% if not request.GET.category %}bg-slate-900 text-white shadow-xl shadow-slate-900/20{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900 font-bold{% endif %}">
+                            <span class="text-xs">Main Repository</span>
+                            <i class="fas fa-chevron-right text-[8px] opacity-20"></i>
+                        </a>
+                        {% for cat in categories %}
+                        <a href="{% url 'store:index' %}?category={{ cat.id }}"
+                            class="flex items-center justify-between px-5 py-4 rounded-2xl transition-all {% if request.GET.category == cat.id|stringformat:'s' %}bg-accent text-white shadow-xl shadow-accent/20{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-900 font-bold{% endif %}">
+                            <span class="text-xs">{{ cat.name }}</span>
+                            {% if request.GET.category == cat.id|stringformat:'s' %}
+                            <i class="fas fa-circle-check text-[10px] text-white/50"></i>
+                            {% else %}
+                            <i class="fas fa-chevron-right text-[8px] opacity-20"></i>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Price Optimization -->
+                <div class="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100">
+                    <h4 class="text-[10px] font-black tracking-[0.3em] text-slate-400 uppercase mb-8 ml-1">Price Filter
+                    </h4>
+                    <form action="{% url 'store:index' %}" method="GET" class="space-y-6">
+                        {% if request.GET.category %}<input type="hidden" name="category"
+                            value="{{ request.GET.category }}">{% endif %}
+                        {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Min</label>
+                                <input type="number" name="min_price" value="{{ request.GET.min_price|default:'' }}"
+                                    class="w-full bg-white border-none rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-accent outline-none shadow-sm"
+                                    placeholder="0">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Max</label>
+                                <input type="number" name="max_price" value="{{ request.GET.max_price|default:'' }}"
+                                    class="w-full bg-white border-none rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-accent outline-none shadow-sm"
+                                    placeholder="5K+">
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-accent transition-all active:scale-95">Set
+                            Range</button>
+
+                        <a href="{% url 'store:index' %}"
+                            class="block text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">Reset
+                            Modules</a>
+                    </form>
+                </div>
+
+                <!-- Footer-ish Sidebar -->
+                <div
+                    class="p-8 bg-accent/5 rounded-[2.5rem] border-2 border-dashed border-accent/10 text-center group transition-colors hover:bg-accent/10">
+                    <i
+                        class="fas fa-microchip text-accent text-3xl mb-4 opacity-30 group-hover:scale-110 transition-transform"></i>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Global Stockage</p>
+                    <p class="text-2xl font-black text-slate-900 tracking-tighter">{{ categories.count|add:154 }}+ Items
+                    </p>
+                </div>
+            </aside>
+            {% endif %}
+
+            <!-- Dynamic Body -->
+            <main class="flex-1 min-w-0 fade-in">
+                {% block content %}{% endblock %}
+            </main>
         </div>
     </div>
-</nav>
 
-<!-- Alert Messages -->
-<div class="container mt-3">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show message-alert" role="alert">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-</div>
-
-<script>
-  // Auto dismiss alerts
-  document.addEventListener('DOMContentLoaded', function() {
-    const alerts = document.querySelectorAll('.message-alert');
-    alerts.forEach(alert => {
-      setTimeout(() => { alert.remove(); }, 2500);
-    });
-  });
-</script>
-
-<!-- Main content -->
-<div class="container-fluid">
-    <div class="row">
-
-        <!-- Admin Sidebar -->
-        {% if user.is_authenticated and user.is_staff %}
-        <nav class="col-md-2 bg-dark text-white vh-100 p-3 position-fixed sidebar shadow-lg">
-            <h5 class="text-center mb-4">Admin Dashboard</h5>
-            <ul class="nav flex-column">
-
-                <li class="mb-3">
-                    <a href="{% url 'store:admin_dashboard' %}" class="d-flex align-items-center px-3 py-2 rounded sidebar-link text-white">
-                        <i class="bi bi-house-door me-2"></i> Home
-                    </a>
-                </li>
-
-                <li class="mb-3">
-                    <span class="text-uppercase small text-secondary px-3 mb-2 d-block">Products</span>
-                    <a href="{% url 'store:product_list' %}" class="d-flex align-items-center px-3 py-2 rounded sidebar-link text-white">
-                        <i class="bi bi-box-seam me-2"></i> All Products
-                    </a>
-                    <a href="{% url 'store:product_create' %}" class="btn btn-sm btn-primary w-100 mt-1 mb-2">+ Add Product</a>
-                </li>
-
-                <li class="mb-3">
-                    <span class="text-uppercase small text-secondary px-3 mb-2 d-block">Categories</span>
-                    <a href="{% url 'store:category_list' %}" class="d-flex align-items-center px-3 py-2 rounded sidebar-link text-white">
-                        <i class="bi bi-tags me-2"></i> All Categories
-                    </a>
-                    <a href="{% url 'store:category_create' %}" class="btn btn-sm btn-success w-100 mt-1 mb-2">+ Add Category</a>
-                </li>
-
-                <li class="mt-auto">
-    <form method="POST" action="{% url 'store:logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="d-flex align-items-center px-3 py-2 rounded logout-link text-white border-0 w-100 text-start">
-            <i class="bi bi-box-arrow-right me-2"></i> Logout
-        </button>
-    </form>
-</li>
-            </ul>
-        </nav>
-        {% endif %}
-
-        <!-- Content area -->
-        <div class="{% if user.is_authenticated and user.is_staff %}col-md-10 offset-md-2{% else %}col-12{% endif %} py-4">
-            {% block content %}{% endblock %}
-        </div>
-
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/script.js' %}"></script>
+    <!-- Essential Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-hide alerts after 4s
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.fade-in');
+                alerts.forEach(a => { if (a.classList.contains('glass-card')) a.style.display = 'none'; });
+            }, 4000);
+        });
+    </script>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
+
 </html>

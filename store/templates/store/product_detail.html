@@ -1,30 +1,161 @@
 {% extends 'store/base.html' %}
-{% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-md-6 text-center">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: cover;">
-            {% else %}
-                <img src="https://via.placeholder.com/400x400?text=No+Image" class="img-fluid rounded shadow">
-            {% endif %}
-        </div>
-        <div class="col-md-6">
-            <h2 class="fw-bold">{{ product.name }}</h2>
-            <p class="text-primary fs-5 fw-semibold mb-3">${{ product.price }}</p>
-            <p class="text-muted">{{ product.description|linebreaks }}</p>
+{% load static %}
 
-            {% if product.stock > 0 %}
-                <p><strong>In Stock:</strong> {{ product.stock }}</p>
-                <a href="{% url 'store:add_to_cart' product.id %}" class="btn btn-primary btn-lg me-2">Add to Cart</a>
-                <a href="{% url 'store:add_to_wishlist' product.id %}" class="btn btn-warning btn-lg text-dark">
-                    <i class="bi bi-heart-fill"></i> Wishlist
-                </a>
-            {% else %}
-                <p class="text-danger fw-bold">Out of Stock</p>
-                <button class="btn btn-secondary btn-lg" disabled>Sold Out</button>
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start fade-in">
+    <!-- Image Gallery -->
+    <div class="lg:col-span-7 space-y-6">
+        <div class="relative group">
+            <div class="aspect-[4/5] rounded-[3rem] overflow-hidden border border-slate-200 bg-white shadow-sm">
+                {% if product.image %}
+                <img src="{{ product.image.url }}"
+                    class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                    id="mainImage">
+                {% else %}
+                <div class="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                    <i class="bi bi-image text-8xl mb-4"></i>
+                    <span class="font-black text-xs uppercase tracking-widest">No Image Available</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if product.stock == 0 %}
+            <div class="absolute top-8 left-8">
+                <span
+                    class="bg-slate-900 text-white px-8 py-3 rounded-full font-black text-xs tracking-[0.2em] shadow-2xl">
+                    LIMITED RELEASE · SOLD OUT
+                </span>
+            </div>
             {% endif %}
+
+            <!-- Share Button -->
+            <button
+                class="absolute bottom-8 right-8 w-14 h-14 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-2xl hover:bg-slate-900 hover:text-white transition-all active:scale-90">
+                <i class="bi bi-share-fill"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="lg:col-span-5 flex flex-col h-full py-4">
+        <div class="space-y-8 flex-1">
+            <div class="space-y-2">
+                <div class="flex items-center gap-3 mb-2">
+                    <span
+                        class="px-3 py-1 bg-accent/10 text-accent rounded-full text-[10px] font-black uppercase tracking-widest">{{
+                        product.category.name }}</span>
+                    {% if product.stock > 0 %}
+                    <span
+                        class="inline-flex items-center text-[10px] font-black text-emerald-500 tracking-widest uppercase">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                        In Stock
+                    </span>
+                    {% endif %}
+                </div>
+                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 leading-[1.1]">{{ product.name }}</h1>
+                <p class="text-3xl font-black text-slate-900 mt-6">${{ product.price }}</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-100 p-8 rounded-[2rem]">
+                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center">
+                    <i class="bi bi-info-circle mr-2"></i>
+                    Description
+                </h4>
+                <p class="text-slate-600 leading-relaxed font-medium">
+                    {{ product.description|default:"No elite description provided for this collection item yet. Each
+                    piece in our collection is curated for its exceptional quality and design relevance." }}
+                </p>
+            </div>
+
+            <div class="space-y-4 pt-4 border-t border-slate-100">
+                {% if product.stock > 0 %}
+                <div class="grid grid-cols-4 gap-4">
+                    <a href="{% url 'store:add_to_cart' product.id %}"
+                        class="col-span-3 bg-accent text-white h-20 rounded-[1.25rem] font-black text-xl shadow-2xl shadow-accent/20 hover:shadow-accent/40 lg:hover:-translate-y-1 transition-all flex items-center justify-center group active:scale-95">
+                        Add to Bag
+                        <i class="bi bi-bag-plus-fill ml-4 transition-transform group-hover:scale-110"></i>
+                    </a>
+                    <a href="{% url 'store:add_to_wishlist' product.pk %}"
+                        class="w-full bg-white border-2 border-slate-100 rounded-[1.25rem] flex items-center justify-center hover:bg-slate-50 hover:border-slate-200 transition-all text-slate-400 hover:text-red-500 active:scale-90">
+                        <i class="bi bi-heart-fill text-2xl"></i>
+                    </a>
+                </div>
+                {% else %}
+                <button disabled
+                    class="w-full h-20 bg-slate-100 text-slate-400 rounded-[1.25rem] font-black text-xl cursor-not-allowed flex items-center justify-center opacity-50">
+                    Out of Stock - Waiting Re-entry
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Perks -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 font-bold text-lg">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase tracking-tighter">Fast Shipping</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">2-3 Business Days</p>
+                    </div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 font-bold text-lg">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase tracking-tighter">Elite quality</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">100% Guaranteed</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Related Products -->
+{% if related_products %}
+<div class="mt-32 pt-20 border-t border-slate-100">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div class="space-y-2 text-center md:text-left">
+            <h3 class="text-3xl md:text-4xl font-black text-slate-900 leading-tight">Similar Acquisitions</h3>
+            <p class="text-slate-500 text-lg font-medium">Explore more items from the {{ product.category.name }}
+                series.</p>
+        </div>
+        <a href="{% url 'store:index' %}?category={{ product.category.id }}"
+            class="btn-base bg-slate-900 text-white shadow-xl hover:-translate-y-1 transition-all">
+            Browse Category Collection
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {% for rel in related_products %}
+        <div
+            class="group relative flex flex-col bg-white border border-slate-200 rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] hover:-translate-y-2">
+            <a href="{% url 'store:product_detail' rel.id %}"
+                class="block overflow-hidden relative aspect-[4/5] bg-slate-50">
+                {% if rel.image %}
+                <img src="{{ rel.image.url }}"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    alt="{{ rel.name }}">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                    <i class="bi bi-image text-3xl"></i>
+                </div>
+                {% endif %}
+            </a>
+            <div class="p-6 text-center">
+                <h6 class="text-sm font-black text-slate-900 group-hover:text-accent transition-colors truncate mb-1">{{
+                    rel.name }}</h6>
+                <div class="font-black text-accent">${{ rel.price }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}

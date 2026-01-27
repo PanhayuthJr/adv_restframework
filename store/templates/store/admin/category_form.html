@@ -1,75 +1,43 @@
 {% extends 'store/admin/base_admin.html' %}
 {% load static %}
 
-{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Category{% endblock %}
+{% block header_title %}{% if category %}Renaming Node{% else %}Append New Series{% endif %}{% endblock %}
+{% block header_subtitle %}{% if category %}Modifying existing taxonomy classification.{% else %}Defining a new series
+for the product repository.{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-            <div class="card shadow-sm border-0 rounded-4 p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h2 class="fw-bold text-primary mb-0">
-                        {% if form.instance.pk %}
-                            <i class="bi bi-pencil-square me-2"></i>Edit Category
-                        {% else %}
-                            <i class="bi bi-plus-circle me-2"></i>Add New Category
-                        {% endif %}
-                    </h2>
-                    <a href="{% url 'store:category_list' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left-circle me-1"></i> Back
-                    </a>
-                </div>
+<div class="max-w-2xl">
+    <form method="POST" class="bg-white border border-slate-100 rounded-[3rem] p-12 shadow-sm space-y-10">
+        {% csrf_token %}
 
-                <form method="POST" novalidate>
-                    {% csrf_token %}
-
-                    <!-- Category Name -->
-                    <div class="mb-4">
-                        <label for="id_name" class="form-label fw-semibold">Category Name</label>
-                        <input type="text" name="name" id="id_name"
-                               class="form-control form-control-lg"
-                               placeholder="Enter category name"
-                               value="{{ form.name.value|default_if_none:'' }}">
-                        {% if form.name.errors %}
-                            <div class="text-danger small mt-1">{{ form.name.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Description -->
-                    <div class="mb-4">
-                        <label for="id_description" class="form-label fw-semibold">Description</label>
-                        <textarea name="description" id="id_description"
-                                  class="form-control form-control-lg"
-                                  rows="5" placeholder="Write a short description...">{{ form.description.value|default_if_none:'' }}</textarea>
-                        {% if form.description.errors %}
-                            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
-                            <i class="bi bi-save me-1"></i> Save Category
-                        </button>
-                    </div>
-                </form>
-            </div>
+        {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-3xl mb-8">
+            <p class="text-sm font-black text-red-600 uppercase tracking-widest mb-2">Configuration Error Detected</p>
+            <ul class="list-disc list-inside text-xs font-bold text-red-500 space-y-1">
+                {% for field, errors in form.errors.items %}
+                <li>{{ field|title }}: {{ errors|striptags }}</li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
-</div>
+        {% endif %}
 
-<!-- Optional entry animation -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const card = document.querySelector('.card');
-        card.style.opacity = 0;
-        card.style.transform = "translateY(25px)";
-        setTimeout(() => {
-            card.style.transition = "all 0.6s ease";
-            card.style.opacity = 1;
-            card.style.transform = "translateY(0)";
-        }, 100);
-    });
-</script>
+        <div>
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-3 block">Node
+                Designation (Name)</label>
+            {{ form.name }}
+        </div>
+
+        <div class="pt-10 border-t border-slate-50 flex items-center justify-between">
+            <a href="{% url 'store:category_list' %}"
+                class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors flex items-center gap-3">
+                <i class="fas fa-chevron-left text-[10px]"></i>
+                Back to Taxonomy
+            </a>
+            <button type="submit"
+                class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-all active:scale-95 shadow-2xl shadow-slate-900/20">
+                {% if category %}Commit Unit{% else %}Append Node{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}

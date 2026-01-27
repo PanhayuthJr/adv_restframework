@@ -1,5 +1,14 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views, api_views
+
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'categories', api_views.CategoryViewSet)
+router.register(r'products', api_views.ProductViewSet)
+router.register(r'cart', api_views.CartItemViewSet, basename='cart-item')
+router.register(r'wishlist', api_views.WishlistItemViewSet, basename='wishlist-item')
+router.register(r'orders', api_views.OrderViewSet, basename='order')
 
 app_name = 'store'
 
@@ -32,6 +41,7 @@ urlpatterns = [
     path('checkout_selected/', views.checkout_selected, name='checkout_selected'),
 
     path('checkout/', views.checkout, name='checkout'),
+    path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     # Products CRUD
     path('dashboard/products/', views.product_list, name='product_list'),
     path('dashboard/products/create/', views.product_create, name='product_create'),
@@ -44,4 +54,6 @@ urlpatterns = [
     path('dashboard/categories/update/<int:pk>/', views.category_update, name='category_update'),
     path('dashboard/categories/delete/<int:pk>/', views.category_delete, name='category_delete'),
 
+    # API
+    path('api/', include(router.urls)),
 ]

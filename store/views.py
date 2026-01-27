@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.admin.views.decorators import staff_member_required
 
-from .models import Product, Category, CartItem, WishlistItem
+from .models import Product, Category, CartItem, WishlistItem, Order, OrderItem
 from .forms import ProductForm, CategoryForm
 
 # ============================
@@ -19,13 +19,20 @@ def index(request):
     products = Product.objects.all()
     query = request.GET.get('q', '')
     category_id = request.GET.get('category')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
 
     if query:
         products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
     if category_id and category_id.isdigit():
         products = products.filter(category_id=int(category_id))
+    
+    if min_price and min_price.isdigit():
+        products = products.filter(price__gte=float(min_price))
+    if max_price and max_price.isdigit():
+        products = products.filter(price__lte=float(max_price))
 
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 12) # Increased to match grid
     page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'store/index.html', {
@@ -33,13 +40,18 @@ def index(request):
         'query': query,
         'selected_category': int(category_id) if category_id and category_id.isdigit() else None,
         'page_obj': page_obj,
-        'categories': Category.objects.all(),
+        'min_price': min_price,
+        'max_price': max_price,
     })
 
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, 'store/product_detail.html', {'product': product})
+    related_products = Product.objects.filter(category=product.category).exclude(pk=pk)[:4]
+    return render(request, 'store/product_detail.html', {
+        'product': product,
+        'related_products': related_products
+    })
 
 
 # ============================
@@ -124,36 +136,119 @@ def checkout(request):
     for product_id, item in cart.items():
         try:
             product = Product.objects.get(pk=product_id)
-            product.quantity = item['quantity']
-            products.append(product)
+            products.append({
+                'product': product,
+                'quantity': item['quantity'],
+                'price': product.price
+            })
             total += product.price * item['quantity']
         except Product.DoesNotExist:
             continue
 
     if request.method == 'POST':
-        # For demo, we just show a success message
-        messages.success(request, "✅ Payment done! Thank you for your purchase.")
-        # Optionally, clear the cart or remove selected items
-        # request.session['cart'] = {}  # uncomment to clear cart
-        return redirect('store:checkout')  # stay on checkout page
+        # Create Order (Mapping Laravel field names)
+        order = Order.objects.create(
+            user=request.user,
+            first_name=request.POST.get('name'), # Laravel used 'name'
+            email=request.user.email if request.user.is_authenticated else request.POST.get('email', ''),
+            address=request.POST.get('location'), # Laravel used 'location'
+            city=request.POST.get('city', 'Phnom Penh'),
+            phone=request.POST.get('phone'),
+            total_amount=total + 2, # +2 for shipping in template
+            payment_method=request.POST.get('payment_method'),
+            # Recognize both aba_payway and khqr as 'Paid' for simulation
+            status='Paid' if request.POST.get('payment_method') in ['aba_payway', 'khqr'] else 'Pending'
+        )
+
+        # Create Order Items
+        for item in products:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
+            
+            # Reduce stock
+            item['product'].stock -= item['quantity']
+            item['product'].save()
+
+        # Clear cart
+        request.session['cart'] = {}
+        request.session.modified = True
+        
+        messages.success(request, "✅ Order placed successfully!")
+        return redirect('store:order_success', order_id=order.id)
 
     return render(request, 'store/checkout.html', {
-        'products': products,
+        'products': products, # Passing the full dict list for the new summary
         'total': total
     })
 
 @login_required
+def order_success(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'store/order_success.html', {'order': order})
+
+@login_required
 def checkout_selected(request):
     if request.method == "POST":
-        selected_ids = request.POST.getlist('selected_items')  # Get selected checkboxes
-        cart = request.session.get('cart', {})
-        selected_products = []
-        total = 0
+        selected_ids = request.POST.getlist('selected_items')
+        
+        # Check if this is the final order submission (contains 'name' and 'phone')
+        if 'name' in request.POST and 'phone' in request.POST:
+            # We need the product IDs either from hidden fields or we can pass them in the form
+            # For simplicity, let's assume the template passes them as 'checkout_product_ids'
+            product_ids = request.POST.getlist('checkout_product_ids')
+            cart = request.session.get('cart', {})
+            products_to_buy = []
+            total = 0
+            
+            for pid in product_ids:
+                if pid in cart:
+                    product = Product.objects.get(pk=pid)
+                    qty = cart[pid]['quantity']
+                    products_to_buy.append({'product': product, 'quantity': qty})
+                    total += product.price * qty
+            
+            # Create Order (Same logic as checkout)
+            order = Order.objects.create(
+                user=request.user,
+                first_name=request.POST.get('name'),
+                email=request.user.email if request.user.is_authenticated else request.POST.get('email', ''),
+                address=request.POST.get('location'),
+                city=request.POST.get('city', 'Phnom Penh'),
+                phone=request.POST.get('phone'),
+                total_amount=total + 2,
+                payment_method=request.POST.get('payment_method'),
+                status='Paid' if request.POST.get('payment_method') in ['aba_payway', 'khqr'] else 'Pending'
+            )
 
-        # Check if any product was selected
+            for item in products_to_buy:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    quantity=item['quantity'],
+                    price=item['product'].price
+                )
+                item['product'].stock -= item['quantity']
+                item['product'].save()
+                # Remove ONLY selected items from cart
+                del cart[str(item['product'].id)]
+
+            request.session['cart'] = cart
+            request.session.modified = True
+            messages.success(request, "✅ Order placed successfully!")
+            return redirect('store:order_success', order_id=order.id)
+
+        # Initial transition from Cart to Checkout
         if not selected_ids:
             messages.warning(request, "⚠️ Please select at least one product to checkout.")
             return redirect('store:cart')
+
+        cart = request.session.get('cart', {})
+        selected_products = []
+        total = 0
 
         for product_id in selected_ids:
             if product_id in cart:
@@ -169,15 +264,12 @@ def checkout_selected(request):
                 except Product.DoesNotExist:
                     continue
 
-        # Render checkout page with selected items
         return render(request, 'store/checkout.html', {
-            'products': [item['product'] for item in selected_products],
-            'selected_items': selected_products,
+            'products': selected_products, # Standard structure: List of dicts with 'product' and 'quantity'
             'total': total,
             'selected_checkout': True
         })
-    else:
-        return redirect('store:cart')
+    return redirect('store:cart')
 
 
 
@@ -277,12 +369,27 @@ def logout_view(request):
 # ADMIN DASHBOARD & CRUD
 # ============================
 
-# Admin check decorator
-admin_required = user_passes_test(lambda u: u.is_superuser)
+# Admin check decorator (All Staff can access)
+admin_required = user_passes_test(lambda u: u.is_staff)
 
 @admin_required
 def admin_dashboard(request):
-    return render(request, 'store/admin/dashboard.html')
+    total_revenue = sum(order.total_amount for order in Order.objects.filter(status='Paid'))
+    total_orders = Order.objects.count()
+    total_products = Product.objects.count()
+    total_customers = User.objects.filter(is_staff=False).count()
+    
+    recent_orders = Order.objects.all().order_by('-created_at')[:5]
+    
+    # Simple growth simulation data (Optional for UI)
+    stats = {
+        'revenue': total_revenue,
+        'orders': total_orders,
+        'products': total_products,
+        'customers': total_customers,
+        'recent_orders': recent_orders
+    }
+    return render(request, 'store/admin/dashboard.html', stats)
 
 
 # ===== PRODUCTS CRUD =====
