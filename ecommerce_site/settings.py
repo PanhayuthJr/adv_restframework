@@ -83,14 +83,15 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 #     }
 # }
 
-# Database configuration - Hardcoded for immediate fix
+# Database configuration - Fixed protocol
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://postgres:BXbTBXnwFjSeQPIqTczTbrWSRhELHCtb@postgres.railway.internal:5432/railway',
+        default='postgres://postgres:BXbTBXnwFjSeQPIqTczTbrWSRhELHCtb@postgres.railway.internal:5432/railway',
         conn_max_age=600,
         ssl_require=False
     )
 }
+
 
 
 
