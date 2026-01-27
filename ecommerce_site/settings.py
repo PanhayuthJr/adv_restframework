@@ -83,14 +83,18 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 #     }
 # }
 
-# Database configuration - Fixed protocol
+# Database configuration - Explicit Engine
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://postgres:BXbTBXnwFjSeQPIqTczTbrWSRhELHCtb@postgres.railway.internal:5432/railway',
-        conn_max_age=600,
-        ssl_require=False
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'BXbTBXnwFjSeQPIqTczTbrWSRhELHCtb',
+        'HOST': 'postgres.railway.internal',
+        'PORT': '5432',
+    }
 }
+
 
 
 
