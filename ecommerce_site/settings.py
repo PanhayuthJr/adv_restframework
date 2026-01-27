@@ -78,31 +78,30 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 # }
 
 # Database configuration - Railway Standard
-import dj_database_url
-import os
-
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=False  # Set to True if using a production DB with SSL
-        )
-    }
-else:
-    # Fallback for local development
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'ecommerce_site',
-            'USER': 'postgres',
-            'PASSWORD': '123',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
+if not DATABASE_URL:
+    print("WARNING: DATABASE_URL environment variable is not set. Defaulting to SQLite for local development.")
+
+# Robust check for Railway environment
+is_railway = any(key.startswith('RAILWAY_') for key in os.environ)
+
+if is_railway and DATABASE_URL and ('localhost' in DATABASE_URL or '127.0.0.1' in DATABASE_URL):
+    raise RuntimeError(
+        "CRITICAL ERROR: DATABASE_URL is set to localhost in a Railway environment.\n"
+        "The application is trying to connect to a database inside this container, which does not exist.\n"
+        "Please update the DATABASE_URL variable in your Railway project settings to point to your PostgreSQL service.\n"
+        "It should look like: postgres://user:password@containers-us-west-111.railway.app:5432/railway"
+    )
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+        ssl_require=False
+    )
+}
+
 
 # Hardcode these for stability until connection is fixed
 DEBUG = True
