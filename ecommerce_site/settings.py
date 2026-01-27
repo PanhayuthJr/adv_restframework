@@ -16,9 +16,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-6kw3%ir=)%zxl8e8f#sqa!5b=5ao=oebm@&l)t@185$4so5rp7')
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+# Temporarily hardcoded for debugging the 400 error
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+# Security headers for Railway/Proxies
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 
 # ==========================
@@ -114,6 +119,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # WhiteNoise configuration for production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Allow deployment even if static files are not found (useful for first-time builds)
+WHITENOISE_MANIFEST_STRICT = False
+
 
 
 LOGIN_URL = '/login/'
