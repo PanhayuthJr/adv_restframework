@@ -83,31 +83,14 @@ WSGI_APPLICATION = 'ecommerce_site.wsgi.application'
 #     }
 # }
 
-# Database configuration
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    # If no environment variable, this will now error out clearly in logs
-    # rather than defaulting to localhost which always fails on Railway
-    print("CRITICAL: DATABASE_URL is not set!")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'ecommerce_site',
-            'USER': 'postgres',
-            'PASSWORD': '123',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
+# Database configuration - Hardcoded for immediate fix
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://postgres:BXbTBXnwFjSeQPIqTczTbrWSRhELHCtb@postgres.railway.internal:5432/railway',
+        conn_max_age=600,
+        ssl_require=False
+    )
+}
 
 
 
